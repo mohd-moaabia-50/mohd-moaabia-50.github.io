@@ -3286,7 +3286,60 @@ body {
   }
 }
 /*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/
-</style></head><body><div id="root"></div><script>window.instinctFile={initialRoute:"/",route:function(){}};</script><script>(() => {
+</style>
+<style id="fx-anim">
+/* ===== Flashy animations (added) ===== */
+@keyframes fx-grad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes fx-bar{0%{background-position:0% 0}100%{background-position:200% 0}}
+@keyframes fx-zoom{0%,100%{transform:scale(1.02)}50%{transform:scale(1.09)}}
+@keyframes fx-pill{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes fx-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* animated gradient bar across the top */
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:4px;z-index:9999;background:linear-gradient(90deg,#164a40,#2f9e7f,#5cc8a5,#2f9e7f,#164a40);background-size:200% 100%;animation:fx-bar 6s linear infinite}
+
+/* name + hero heading: animated gradient text */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+.file-title{background:linear-gradient(92deg,#164a40 0%,#1f8a6d 30%,#46c795 50%,#1f8a6d 70%,#164a40 100%);background-size:250% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:fx-grad 8s ease infinite}
+.hero h2{background:linear-gradient(92deg,#164a40,#276e60,#3aa383,#164a40);background-size:250% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:fx-grad 9s ease infinite}
+.eyebrow{display:inline-block;background:linear-gradient(90deg,#276e60,#3aa383,#276e60);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:fx-grad 5s linear infinite}
+}
+
+/* hero: slow shifting gradient + gentle ken-burns zoom on the image */
+.hero{background:linear-gradient(120deg,#e9eeeb,#d7ece2,#e3f2ec,#e9eeeb);background-size:280% 280%;animation:fx-grad 14s ease infinite}
+.hero img{animation:fx-zoom 11s ease-in-out infinite;will-change:transform}
+
+/* status pills gently pulse */
+.status{display:inline-block;animation:fx-pill 3.2s ease-in-out infinite}
+
+/* section headings: animated gradient underline */
+.file-group-heading{position:relative;display:inline-block;padding-bottom:9px}
+.file-group-heading::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;border-radius:3px;background:linear-gradient(90deg,#164a40,#46c795,#164a40);background-size:200% 100%;animation:fx-bar 4s linear infinite}
+
+/* cards: lift + glow + shine sweep on hover */
+.project,.cert{position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),box-shadow .35s ease,border-color .35s ease}
+.project:hover,.cert:hover{transform:translateY(-7px) scale(1.02);box-shadow:0 16px 34px rgba(22,74,64,.2),0 0 0 1px rgba(63,163,131,.35);border-color:#3aa383}
+.project::after,.cert::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-18deg);transition:left .7s ease;pointer-events:none}
+.project:hover::after,.cert:hover::after{left:135%}
+
+/* learning rows: slide + tint on hover */
+.file-row{transition:transform .3s ease,background-color .3s ease;border-radius:10px}
+.file-row:hover{transform:translateX(7px);background-color:rgba(63,163,131,.09)}
+
+/* links: lift on hover */
+.hero-links a,.contact-links a{transition:transform .25s ease,color .25s ease}
+.hero-links a:hover,.contact-links a:hover{transform:translateY(-3px)}
+
+/* scroll-reveal */
+.fx-reveal{opacity:0;transform:translateY(36px) scale(.985);transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
+.fx-reveal.fx-in{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+*,*::before,*::after{animation:none!important;transition:none!important}
+.fx-reveal{opacity:1!important;transform:none!important}
+}
+</style>
+</head><body><div id="root"></div><script>window.instinctFile={initialRoute:"/",route:function(){}};</script><script>(() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -14755,4 +14808,44 @@ react-router/dist/development/index.mjs:
    * @license MIT
    *)
 */
-</script></body></html>
+</script>
+<script>
+(function(){
+var started=false;
+function init(){
+  if(started)return;
+  var root=document.getElementById('root');
+  if(!root||!root.querySelector('.file-title'))return;
+  started=true;
+  var groups=['.file-header','.hero','.file-group-heading','.section-intro','.file-row','.project','.cert','.hero-links a','.contact-links a','.file-caption','.file-closing'];
+  var els=[];
+  groups.forEach(function(sel){
+    root.querySelectorAll(sel).forEach(function(el,i){
+      el.classList.add('fx-reveal');
+      var d=Math.min(i*90,360);
+      el.style.transitionDelay=d+'ms';
+      el.setAttribute('data-fx-delay',d);
+      els.push(el);
+    });
+  });
+  function reveal(el){
+    el.classList.add('fx-in');
+    var d=parseInt(el.getAttribute('data-fx-delay')||'0',10);
+    setTimeout(function(){el.classList.remove('fx-reveal','fx-in');el.style.transitionDelay='';},1150+d);
+  }
+  if(!('IntersectionObserver' in window)){els.forEach(reveal);return;}
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){io.unobserve(en.target);reveal(en.target);}
+    });
+  },{threshold:0.12,rootMargin:'0px 0px -6% 0px'});
+  els.forEach(function(el){io.observe(el)});
+}
+var tries=0;
+var t=setInterval(function(){
+  init();
+  if(started||++tries>120)clearInterval(t);
+},100);
+})();
+</script>
+</body></html>
